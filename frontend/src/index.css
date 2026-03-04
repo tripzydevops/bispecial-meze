@@ -11,7 +11,13 @@
   }
 
   body {
-    @apply bg-slate-50 text-slate-900 font-sans antialiased selection:bg-amber-200 selection:text-amber-900;
+    @apply text-slate-900 font-sans antialiased selection:bg-amber-200 selection:text-amber-900 min-h-screen;
+    background: 
+      radial-gradient(at 0% 0%, hsla(38, 92%, 95%, 1) 0px, transparent 50%),
+      radial-gradient(at 100% 0%, hsla(210, 40%, 96%, 1) 0px, transparent 50%),
+      radial-gradient(at 100% 100%, hsla(38, 92%, 95%, 1) 0px, transparent 50%),
+      radial-gradient(at 0% 100%, hsla(210, 40%, 96%, 1) 0px, transparent 50%),
+      #f8fafc;
   }
 }
 
