@@ -48,12 +48,22 @@ const Scan = () => {
     const handleSaveItems = async () => {
         try {
             setStatus('saving');
-            // In a real app, send verified items to backend
-            // For now, we simulate saving and show success
-            await new Promise(resolve => setTimeout(resolve, 1500));
+
+            // Format items for the backend
+            const itemsToSave = extractedItems.map(item => ({
+                name: item.raw_name,
+                unit_price: item.unit_price,
+                unit_type: "kg", // Default for OCR items
+                waste_percent: 0.0,
+                category: "Gıda"
+            }));
+
+            await axios.post(`${API_BASE}/ocr/save`, { items: itemsToSave });
+
             setStatus('saved');
         } catch (err) {
-            setError("Kayıt işlemi başarısız oldu.");
+            console.error("Save failed:", err);
+            setError(err.response?.data?.detail || "Kayıt işlemi başarısız oldu.");
             setStatus('verifying');
         }
     };
