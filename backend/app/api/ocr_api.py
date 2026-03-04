@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 from fastapi import APIRouter, UploadFile, File, HTTPException, Depends
 from typing import List, Dict
 from pydantic import BaseModel
@@ -18,6 +19,14 @@ class OcrItem(BaseModel):
 class SaveOcrRequest(BaseModel):
     items: List[OcrItem]
 
+=======
+from fastapi import APIRouter, UploadFile, File, HTTPException
+from typing import List, Dict
+from ..core.ocr_service import extract_invoice_data, mock_process_image
+
+router = APIRouter(prefix="/api/ocr", tags=["ocr"])
+
+>>>>>>> meze1/main
 @router.post("/scan")
 async def scan_invoice(file: UploadFile = File(...)):
     """
@@ -39,6 +48,7 @@ async def scan_invoice(file: UploadFile = File(...)):
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"OCR Processing failed: {str(e)}")
+<<<<<<< HEAD
 
 @router.post("/save")
 async def save_ocr_items(request: SaveOcrRequest, db: Session = Depends(get_db)):
@@ -72,3 +82,5 @@ async def save_ocr_items(request: SaveOcrRequest, db: Session = Depends(get_db))
     except Exception as e:
         db.rollback()
         raise HTTPException(status_code=500, detail=f"Failed to save items: {str(e)}")
+=======
+>>>>>>> meze1/main
