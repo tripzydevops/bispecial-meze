@@ -2,11 +2,13 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from backend.app.api import materials_api, recipes_api, ocr_api
 from backend.app.models.db_session import init_db
+from mangum import Mangum
 import uvicorn
 
 init_db()
 
 app = FastAPI(title="BiSpecial Meze Maliyet Kontrol Sistemi")
+handler = Mangum(app)
 
 # CORS setup for React frontend
 app.add_middleware(
