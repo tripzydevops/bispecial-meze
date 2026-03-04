@@ -3,10 +3,13 @@
 @tailwind utilities;
 
 :root {
-  --primary-color: #f59e0b; /* Amber 500 */
-  --secondary-color: #10b981; /* Emerald 500 */
+  --primary-color: #f59e0b;
 }
 
 body {
-  @apply bg-slate-50 text-slate-900 font-sans;
+  @apply bg-slate-50 text-slate-900 font-sans antialiased;
+}
+
+.sidebar-link-active {
+  @apply bg-amber-50 text-amber-700 font-semibold shadow-sm border-r-4 border-amber-500;
 }
