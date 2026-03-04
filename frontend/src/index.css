@@ -1,0 +1,12 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --primary-color: #f59e0b; /* Amber 500 */
+  --secondary-color: #10b981; /* Emerald 500 */
+}
+
+body {
+  @apply bg-slate-50 text-slate-900 font-sans;
+}
