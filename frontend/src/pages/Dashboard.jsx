@@ -43,23 +43,20 @@ const Dashboard = () => {
     const [stats, setStats] = useState({
         materials: 0,
         recipes: 0,
-        avgPortion: 42.50,
-        totalSavings: 1250.00
+        avg_cost: 0,
+        active_tasks: 0
     });
+    const [activity, setActivity] = useState([]);
+    const [trends, setTrends] = useState([40, 65, 55, 80, 45, 90, 70]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const fetchDashboardData = async () => {
             try {
-                const [matRes, recRes] = await Promise.all([
-                    axios.get(`${API_BASE}/materials/`),
-                    axios.get(`${API_BASE}/recipes/`)
-                ]);
-                setStats({
-                    ...stats,
-                    materials: matRes.data.length,
-                    recipes: recRes.data.length
-                });
+                const res = await axios.get(`${API_BASE}/stats/summary`);
+                setStats(res.data.stats);
+                setActivity(res.data.activity);
+                if (res.data.trends) setTrends(res.data.trends);
             } catch (err) {
                 console.error("Dashboard data fetching failed:", err);
             } finally {
@@ -117,17 +114,17 @@ const Dashboard = () => {
                     color="blue"
                 />
                 <StatCard
-                    title="Ortalam Porsiyon"
-                    value={`${stats.avgPortion} ₺`}
+                    title="Ortalama Porsiyon"
+                    value={`${stats.avg_cost} ₺`}
                     change={-2.1}
                     icon={<Target size={28} />}
                     color="emerald"
                 />
                 <StatCard
-                    title="Tahmini Tasarruf"
-                    value={`${stats.totalSavings} ₺`}
-                    change={15.8}
-                    icon={<TrendingUp size={28} />}
+                    title="Aktif Görevler"
+                    value={stats.active_tasks}
+                    change={0}
+                    icon={<Bell size={28} />}
                     color="rose"
                 />
             </div>
@@ -148,7 +145,7 @@ const Dashboard = () => {
                     </div>
 
                     <div className="h-64 flex items-end justify-between gap-4">
-                        {[40, 65, 55, 80, 45, 90, 70].map((height, i) => (
+                        {trends.map((height, i) => (
                             <div key={i} className="flex-1 group relative">
                                 <motion.div
                                     initial={{ height: 0 }}
@@ -171,21 +168,26 @@ const Dashboard = () => {
                     <div className="absolute top-0 right-0 w-64 h-64 bg-amber-500/10 blur-[100px] -mr-32 -mt-32"></div>
                     <div className="relative z-10 flex flex-col h-full">
                         <div className="bg-white/10 p-5 rounded-3xl w-fit mb-8 shadow-xl backdrop-blur-xl border border-white/5">
-                            <ChefHat size={32} className="text-amber-500" />
+                            <TrendingUp size={32} className="text-amber-500" />
                         </div>
-                        <h3 className="text-4xl font-black leading-tight mb-4 tracking-tight">Kritik Stok<br />Uyarısı</h3>
-                        <p className="text-white/60 font-bold mb-10 leading-relaxed">Aşağıdaki 3 kalem malzeme kritik seviyenin altında. Reçeteleriniz etkilenebilir.</p>
+                        <h3 className="text-4xl font-black leading-tight mb-4 tracking-tight">Son<br />Aktiviteler</h3>
+                        <p className="text-white/60 font-bold mb-10 leading-relaxed">Sisteminizde gerçekleşen son işlemler ve güncellemeler.</p>
 
                         <div className="space-y-4 mt-auto">
-                            {['Süzme Yoğurt', 'Ceviz İçi', 'Tereyağı'].map((item, i) => (
-                                <div key={i} className="p-4 bg-white/5 rounded-2xl border border-white/5 hover:bg-white/10 transition-colors cursor-pointer group flex justify-between items-center">
+                            {activity.length > 0 ? activity.map((item) => (
+                                <div key={item.id} className="p-4 bg-white/5 rounded-2xl border border-white/5 hover:bg-white/10 transition-colors cursor-pointer group flex justify-between items-center">
                                     <div className="flex items-center gap-4">
-                                        <div className="w-2 h-2 rounded-full bg-rose-500"></div>
-                                        <span className="font-bold text-sm tracking-wide">{item}</span>
+                                        <div className={`w-2 h-2 rounded-full ${item.type === 'recipe' ? 'bg-blue-500' : 'bg-amber-500'}`}></div>
+                                        <div>
+                                            <p className="font-bold text-sm tracking-wide leading-none mb-1">{item.title}</p>
+                                            <p className="text-[10px] text-white/40 font-bold uppercase tracking-widest">{item.subtitle}</p>
+                                        </div>
                                     </div>
-                                    <ArrowRight size={16} className="text-white/20 group-hover:text-amber-500 group-hover:translate-x-1 transition-all" />
+                                    <span className="text-[10px] font-black text-white/20 group-hover:text-amber-500 transition-colors uppercase">{item.time}</span>
                                 </div>
-                            ))}
+                            )) : (
+                                <p className="text-white/20 text-xs font-black uppercase tracking-widest text-center py-10">Henüz aktivite yok</p>
+                            )}
                         </div>
                     </div>
                 </div>
