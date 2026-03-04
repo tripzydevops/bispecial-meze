@@ -1,7 +1,8 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, NavLink } from 'react-router-dom';
-import { LayoutGrid, BookOpen, Camera, Settings, PlusCircle, LogOut } from 'lucide-react';
+import { LayoutGrid, BookOpen, Camera, Settings, PlusCircle, LogOut, Package } from 'lucide-react';
 import Dashboard from './pages/Dashboard';
+import Materials from './pages/Materials';
 
 const App = () => {
     return (
@@ -22,6 +23,10 @@ const App = () => {
                         <NavLink to="/" className={({ isActive }) => `flex items-center gap-4 px-5 py-4 rounded-2xl transition-all duration-300 ${isActive ? 'bg-amber-500 text-white shadow-lg shadow-amber-200' : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900 font-medium'}`}>
                             <LayoutGrid size={22} />
                             <span className="text-lg">Panel</span>
+                        </NavLink>
+                        <NavLink to="/materials" className={({ isActive }) => `flex items-center gap-4 px-5 py-4 rounded-2xl transition-all duration-300 ${isActive ? 'bg-amber-500 text-white shadow-lg shadow-amber-200' : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900 font-medium'}`}>
+                            <Package size={22} />
+                            <span className="text-lg font-sans">Malzemeler</span>
                         </NavLink>
                         <NavLink to="/recipes" className={({ isActive }) => `flex items-center gap-4 px-5 py-4 rounded-2xl transition-all duration-300 ${isActive ? 'bg-amber-500 text-white shadow-lg shadow-amber-200' : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900 font-medium'}`}>
                             <BookOpen size={22} />
@@ -52,6 +57,7 @@ const App = () => {
                 <main className="flex-1 p-12 max-w-7xl mx-auto w-full">
                     <Routes>
                         <Route path="/" element={<Dashboard />} />
+                        <Route path="/materials" element={<Materials />} />
                         <Route path="/recipes" element={<div className="p-12 text-slate-400 font-medium italic text-center text-xl mt-20">Reçete Yönetimi Yakında...</div>} />
                         <Route path="/scan" element={<div className="p-12 text-slate-400 font-medium italic text-center text-xl mt-20">Fatura OCR Modülü Yakında...</div>} />
                     </Routes>
