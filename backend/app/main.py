@@ -1,7 +1,10 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from backend.app.api import materials_api, recipes_api, ocr_api
+from backend.app.models.db_session import init_db
 import uvicorn
+
+init_db()
 
 app = FastAPI(title="BiSpecial Meze Maliyet Kontrol Sistemi")
 

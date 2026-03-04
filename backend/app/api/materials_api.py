@@ -1,7 +1,10 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from typing import List
 from pydantic import BaseModel
+from sqlalchemy.orm import Session
 from datetime import datetime
+from ..models.db_session import get_db
+from ..models.database import Material
 
 router = APIRouter(prefix="/api/materials", tags=["materials"])
 
@@ -19,26 +22,34 @@ class MaterialResponse(MaterialBase):
     class Config:
         from_attributes = True
 
-# Mock database for initial development
-mock_db = [
-    {"id": 1, "name": "Süzme Yoğurt", "unit_type": "kg", "unit_price": 120.0, "waste_percent": 0.0, "category": "Gıda", "updated_at": datetime.now()},
-    {"id": 2, "name": "Patlıcan", "unit_type": "kg", "unit_price": 45.0, "waste_percent": 20.0, "category": "Gıda", "updated_at": datetime.now()},
-]
-
 @router.get("/", response_model=List[MaterialResponse])
-async def list_materials():
-    return mock_db
+async def list_materials(db: Session = Depends(get_db)):
+    return db.query(Material).all()
 
 @router.post("/", response_model=MaterialResponse)
-async def create_material(material: MaterialBase):
-    new_id = max(m["id"] for m in mock_db) + 1 if mock_db else 1
-    new_material = {**material.dict(), "id": new_id, "updated_at": datetime.now()}
-    mock_db.append(new_material)
-    return new_material
+async def create_material(material: MaterialBase, db: Session = Depends(get_db)):
+    db_material = Material(**material.dict())
+    db.add(db_material)
+    db.commit()
+    db.refresh(db_material)
+    return db_material
 
 @router.get("/{material_id}", response_model=MaterialResponse)
-async def get_material(material_id: int):
-    for m in mock_db:
-        if m["id"] == material_id:
-            return m
-    raise HTTPException(status_code=404, detail="Material not found")
+async def get_material(material_id: int, db: Session = Depends(get_db)):
+    material = db.query(Material).filter(Material.id == material_id).first()
+    if not material:
+        raise HTTPException(status_code=404, detail="Material not found")
+    return material
+
+@router.put("/{material_id}", response_model=MaterialResponse)
+async def update_material(material_id: int, material: MaterialBase, db: Session = Depends(get_db)):
+    db_material = db.query(Material).filter(Material.id == material_id).first()
+    if not db_material:
+        raise HTTPException(status_code=404, detail="Material not found")
+    
+    for key, value in material.dict().items():
+        setattr(db_material, key, value)
+    
+    db.commit()
+    db.refresh(db_material)
+    return db_material
