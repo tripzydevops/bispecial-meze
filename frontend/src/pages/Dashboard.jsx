@@ -8,6 +8,7 @@ import {
     FileText,
     ArrowUpRight,
     ArrowDownRight,
+    ArrowRight,
     Search,
     Bell,
     Calendar,
