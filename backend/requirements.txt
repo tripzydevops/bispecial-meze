@@ -1,0 +1,11 @@
+fastapi
+uvicorn
+sqlalchemy
+pydantic
+python-dotenv
+psycopg2-binary
+python-multipart
+httpx
+# OCR related (placeholders for now)
+# pytesseract
+# google-cloud-vision
