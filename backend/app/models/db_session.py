@@ -1,4 +1,4 @@
-from sqlalchemy import create_client_engine, create_engine
+from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 import os
 from .database import Base
