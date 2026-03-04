@@ -2,14 +2,41 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --primary-color: #f59e0b;
+@layer base {
+  :root {
+    --primary: #f59e0b;
+    --primary-foreground: #ffffff;
+    --background: #f8fafc;
+    --foreground: #0f172a;
+  }
+
+  body {
+    @apply bg-slate-50 text-slate-900 font-sans antialiased selection:bg-amber-200 selection:text-amber-900;
+  }
 }
 
-body {
-  @apply bg-slate-50 text-slate-900 font-sans antialiased;
+@layer components {
+  .glass {
+    @apply bg-white/70 backdrop-blur-md border border-white/20 shadow-xl;
+  }
+  
+  .glass-dark {
+    @apply bg-slate-900/80 backdrop-blur-lg border border-slate-700/50 shadow-2xl;
+  }
+
+  .premium-card {
+    @apply bg-white rounded-[2rem] border border-slate-100 shadow-sm hover:shadow-xl hover:shadow-slate-200/50 transition-all duration-500;
+  }
+
+  .premium-button {
+    @apply px-6 py-3 rounded-2xl font-bold transition-all duration-300 active:scale-95 disabled:opacity-50 disabled:pointer-events-none;
+  }
+
+  .premium-input {
+    @apply w-full px-5 py-4 bg-slate-50 border-none rounded-2xl outline-none ring-2 ring-transparent focus:ring-amber-500 transition-all duration-300;
+  }
 }
 
-.sidebar-link-active {
-  @apply bg-amber-50 text-amber-700 font-semibold shadow-sm border-r-4 border-amber-500;
+.gradient-text {
+  @apply bg-clip-text text-transparent bg-gradient-to-r from-amber-600 to-orange-500;
 }

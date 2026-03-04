@@ -19,7 +19,21 @@ export default {
                     800: '#92400e',
                     900: '#78350f',
                 },
+                secondary: {
+                    50: '#f8fafc',
+                    100: '#f1f5f9',
+                    200: '#e2e8f0',
+                    400: '#94a3b8',
+                    600: '#475569',
+                    900: '#0f172a',
+                }
             },
+            fontFamily: {
+                sans: ['Inter', 'Outfit', 'sans-serif'],
+            },
+            backdropBlur: {
+                xs: '2px',
+            }
         },
     },
     plugins: [],
