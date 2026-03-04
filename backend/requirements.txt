@@ -6,6 +6,7 @@ python-dotenv
 psycopg2-binary
 python-multipart
 httpx
-# OCR related (placeholders for now)
+mangum
+# OCR related
 # pytesseract
 # google-cloud-vision
