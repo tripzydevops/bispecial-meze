@@ -3,9 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Upload, Camera, CheckCircle2, AlertCircle, Loader2, Plus, ArrowRight, Trash2, Edit2 } from 'lucide-react';
 import axios from 'axios';
 
-const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-    ? 'http://127.0.0.1:8001/api'
-    : '/api';
+const API_BASE = '/api';
 
 const Scan = () => {
     const [file, setFile] = useState(null);
