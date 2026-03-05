@@ -41,14 +41,17 @@ async def health_check():
         db.close()
         db_status = "connected"
     except Exception as e:
-        db_status = f"error: {str(e)}"
+        import traceback
+        error_detail = traceback.format_exc() if not os.getenv("VERCEL") else str(e)
+        db_status = f"error: {error_detail}"
 
     return {
         "status": "online",
         "environment": "vercel" if os.getenv("VERCEL") else "local",
         "database": {
             "type": db_type,
-            "status": db_status
+            "status": db_status,
+            "url_provided": bool(os.getenv("DATABASE_URL"))
         }
     }
 

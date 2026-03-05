@@ -30,7 +30,13 @@ else:
         if "sslmode" not in SQLALCHEMY_DATABASE_URL:
             separator = "&" if "?" in SQLALCHEMY_DATABASE_URL else "?"
             SQLALCHEMY_DATABASE_URL += f"{separator}sslmode=require"
-        # Connection Pooling Tip: Using port 6543 on Supabase often resolves IPv6 connection issues on Vercel
+    
+    # Log masked URL for diagnostic purposes on Vercel
+    masked_url = SQLALCHEMY_DATABASE_URL
+    if "@" in masked_url:
+        parts = masked_url.split("@")
+        masked_url = parts[0].split(":")[0] + ":****@" + parts[1]
+    print(f"Database configured with URL: {masked_url}")
 
 # SQLite needs "check_same_thread" but PostgreSQL does not
 connect_args = {"check_same_thread": False} if SQLALCHEMY_DATABASE_URL.startswith("sqlite") else {}
