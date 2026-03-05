@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Upload, Camera, CheckCircle2, AlertCircle, Loader2, Plus, ArrowRight, Trash2, Edit2 } from 'lucide-react';
 import axios from 'axios';
 
-const API_BASE = 'http://127.0.0.1:8001/api';
+const API_BASE = import.meta.env.PROD ? '/api' : 'http://127.0.0.1:8001/api';
 
 const Scan = () => {
     const [file, setFile] = useState(null);

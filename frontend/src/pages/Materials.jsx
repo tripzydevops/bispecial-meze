@@ -3,7 +3,7 @@ import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, Search, Edit2, Trash2, Package, Percent, Tag, X, Filter } from 'lucide-react';
 
-const API_BASE = 'http://127.0.0.1:8001/api';
+const API_BASE = import.meta.env.PROD ? '/api' : 'http://127.0.0.1:8001/api';
 
 const Materials = () => {
     const [materials, setMaterials] = useState([]);
