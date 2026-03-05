@@ -17,7 +17,9 @@ import {
     Target
 } from 'lucide-react';
 
-const API_BASE = import.meta.env.PROD ? '/api' : 'http://127.0.0.1:8001/api';
+const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+    ? 'http://127.0.0.1:8001/api'
+    : '/api';
 
 const StatCard = ({ title, value, change, icon, color }) => (
     <motion.div
