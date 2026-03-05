@@ -226,7 +226,10 @@ const Materials = () => {
                                                 type="number" step="0.01" required
                                                 className="premium-input font-black text-amber-600"
                                                 value={newMaterial.unit_price}
-                                                onChange={e => setNewMaterial({ ...newMaterial, unit_price: parseFloat(e.target.value) })}
+                                                onChange={e => {
+                                                    const val = parseFloat(e.target.value);
+                                                    setNewMaterial({ ...newMaterial, unit_price: isNaN(val) ? 0 : val });
+                                                }}
                                             />
                                         </div>
                                     </div>
@@ -236,7 +239,10 @@ const Materials = () => {
                                             type="number" required
                                             className="premium-input font-black text-rose-500"
                                             value={newMaterial.waste_percent}
-                                            onChange={e => setNewMaterial({ ...newMaterial, waste_percent: parseFloat(e.target.value) })}
+                                            onChange={e => {
+                                                const val = parseFloat(e.target.value);
+                                                setNewMaterial({ ...newMaterial, waste_percent: isNaN(val) ? 0 : val });
+                                            }}
                                         />
                                     </div>
                                     <div className="flex gap-4 pt-4">

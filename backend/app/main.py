@@ -5,7 +5,10 @@ from backend.app.models.db_session import init_db
 from mangum import Mangum
 import uvicorn
 
-init_db()
+try:
+    init_db()
+except Exception as e:
+    print(f"Startup error: {e}")
 
 app = FastAPI(title="BiSpecial Meze Maliyet Kontrol Sistemi")
 handler = Mangum(app)
