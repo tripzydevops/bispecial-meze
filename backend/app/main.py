@@ -26,6 +26,10 @@ app.add_middleware(
 async def root():
     return {"message": "BiSpecial Meze API is running", "version": "1.0.0"}
 
+# Include routers
+app.include_router(materials_api.router)
+app.include_router(recipes_api.router)
+app.include_router(ocr_api.router)
 app.include_router(stats_api.router)
 
 @app.get("/api/health")
