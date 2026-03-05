@@ -1,3 +1,4 @@
+import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from backend.app.api import materials_api, recipes_api, ocr_api, stats_api
@@ -5,13 +6,7 @@ from backend.app.models.db_session import init_db
 from mangum import Mangum
 import uvicorn
 
-try:
-    init_db()
-except Exception as e:
-    print(f"Startup error: {e}")
-
 app = FastAPI(title="BiSpecial Meze Maliyet Kontrol Sistemi")
-handler = Mangum(app)
 
 # CORS setup for React frontend
 app.add_middleware(
@@ -56,6 +51,16 @@ async def health_check():
             "status": db_status
         }
     }
+
+# Vercel handler (must be at the bottom to ensure all routes are registered)
+handler = Mangum(app)
+
+if __name__ == "__main__":
+    try:
+        init_db()
+    except Exception as e:
+        print(f"Startup error: {e}")
+    uvicorn.run("main:app", host="0.0.0.0", port=8001, reload=True)
 
 if __name__ == "__main__":
     uvicorn.run("main:app", host="0.0.0.0", port=8001, reload=True)

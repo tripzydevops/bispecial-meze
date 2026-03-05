@@ -16,7 +16,6 @@ DATABASE_URL = os.getenv("DATABASE_URL")
 
 if not DATABASE_URL:
     if IS_VERCEL:
-        # Fallback to in-memory for Vercel to avoid read-only FS errors
         SQLALCHEMY_DATABASE_URL = "sqlite:///:memory:"
     else:
         SQLALCHEMY_DATABASE_URL = "sqlite:///./meze_sistemi.db"
@@ -27,9 +26,11 @@ else:
         SQLALCHEMY_DATABASE_URL = SQLALCHEMY_DATABASE_URL.replace("postgres://", "postgresql://", 1)
     
     # Ensure SSL for Supabase/Postgres if not specified
-    if SQLALCHEMY_DATABASE_URL.startswith("postgresql") and "sslmode" not in SQLALCHEMY_DATABASE_URL:
-        separator = "&" if "?" in SQLALCHEMY_DATABASE_URL else "?"
-        SQLALCHEMY_DATABASE_URL += f"{separator}sslmode=require"
+    if SQLALCHEMY_DATABASE_URL.startswith("postgresql"):
+        if "sslmode" not in SQLALCHEMY_DATABASE_URL:
+            separator = "&" if "?" in SQLALCHEMY_DATABASE_URL else "?"
+            SQLALCHEMY_DATABASE_URL += f"{separator}sslmode=require"
+        # Connection Pooling Tip: Using port 6543 on Supabase often resolves IPv6 connection issues on Vercel
 
 # SQLite needs "check_same_thread" but PostgreSQL does not
 connect_args = {"check_same_thread": False} if SQLALCHEMY_DATABASE_URL.startswith("sqlite") else {}
