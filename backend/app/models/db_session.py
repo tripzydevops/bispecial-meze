@@ -8,13 +8,28 @@ from .database import Base
 # Load environment variables
 load_dotenv()
 
-# Using SQLite for initial local development, but prioritizing environment variable
-# In production (Supabase), this will be a PostgreSQL URL
-SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./meze_sistemi.db")
+# Check if running on Vercel
+IS_VERCEL = os.getenv("VERCEL", "0") == "1"
 
-# Fix for SQLAlchemy 1.4+ which requires "postgresql://" instead of "postgres://"
-if SQLALCHEMY_DATABASE_URL.startswith("postgres://"):
-    SQLALCHEMY_DATABASE_URL = SQLALCHEMY_DATABASE_URL.replace("postgres://", "postgresql://", 1)
+# Database URL configuration
+DATABASE_URL = os.getenv("DATABASE_URL")
+
+if not DATABASE_URL:
+    if IS_VERCEL:
+        # Fallback to in-memory for Vercel to avoid read-only FS errors
+        SQLALCHEMY_DATABASE_URL = "sqlite:///:memory:"
+    else:
+        SQLALCHEMY_DATABASE_URL = "sqlite:///./meze_sistemi.db"
+else:
+    SQLALCHEMY_DATABASE_URL = DATABASE_URL
+    # Fix for SQLAlchemy 1.4+ which requires "postgresql://" instead of "postgres://"
+    if SQLALCHEMY_DATABASE_URL.startswith("postgres://"):
+        SQLALCHEMY_DATABASE_URL = SQLALCHEMY_DATABASE_URL.replace("postgres://", "postgresql://", 1)
+    
+    # Ensure SSL for Supabase/Postgres if not specified
+    if SQLALCHEMY_DATABASE_URL.startswith("postgresql") and "sslmode" not in SQLALCHEMY_DATABASE_URL:
+        separator = "&" if "?" in SQLALCHEMY_DATABASE_URL else "?"
+        SQLALCHEMY_DATABASE_URL += f"{separator}sslmode=require"
 
 # SQLite needs "check_same_thread" but PostgreSQL does not
 connect_args = {"check_same_thread": False} if SQLALCHEMY_DATABASE_URL.startswith("sqlite") else {}

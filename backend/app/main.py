@@ -26,11 +26,32 @@ app.add_middleware(
 async def root():
     return {"message": "BiSpecial Meze API is running", "version": "1.0.0"}
 
-# Include routers
-app.include_router(materials_api.router)
-app.include_router(recipes_api.router)
-app.include_router(ocr_api.router)
 app.include_router(stats_api.router)
+
+@app.get("/api/health")
+async def health_check():
+    from backend.app.models.db_session import SQLALCHEMY_DATABASE_URL
+    db_status = "unknown"
+    db_type = "sqlite" if "sqlite" in SQLALCHEMY_DATABASE_URL else "postgresql"
+    
+    try:
+        from sqlalchemy import text
+        from backend.app.models.db_session import SessionLocal
+        db = SessionLocal()
+        db.execute(text("SELECT 1"))
+        db.close()
+        db_status = "connected"
+    except Exception as e:
+        db_status = f"error: {str(e)}"
+
+    return {
+        "status": "online",
+        "environment": "vercel" if os.getenv("VERCEL") else "local",
+        "database": {
+            "type": db_type,
+            "status": db_status
+        }
+    }
 
 if __name__ == "__main__":
     uvicorn.run("main:app", host="0.0.0.0", port=8001, reload=True)
