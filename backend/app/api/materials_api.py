@@ -22,6 +22,13 @@ class MaterialResponse(MaterialBase):
     class Config:
         from_attributes = True
 
+class PriceHistoryResponse(BaseModel):
+    price: float
+    recorded_at: datetime
+
+    class Config:
+        from_attributes = True
+
 @router.get("/", response_model=List[MaterialResponse])
 async def list_materials(db: Session = Depends(get_db)):
     return db.query(Material).all()
@@ -31,6 +38,13 @@ async def create_material(material: MaterialBase, db: Session = Depends(get_db))
     db_material = Material(**material.dict())
     db.add(db_material)
     db.commit()
+    
+    # Record initial price in history
+    from ..models.database import MaterialPriceHistory
+    history = MaterialPriceHistory(material_id=db_material.id, price=db_material.unit_price)
+    db.add(history)
+    db.commit()
+    
     db.refresh(db_material)
     return db_material
 
@@ -47,9 +61,26 @@ async def update_material(material_id: int, material: MaterialBase, db: Session 
     if not db_material:
         raise HTTPException(status_code=404, detail="Material not found")
     
+    old_price = db_material.unit_price
+    
     for key, value in material.dict().items():
         setattr(db_material, key, value)
+    
+    # Record history if price changed
+    if old_price != material.unit_price:
+        from ..models.database import MaterialPriceHistory
+        history = MaterialPriceHistory(material_id=material_id, price=material.unit_price)
+        db.add(history)
     
     db.commit()
     db.refresh(db_material)
     return db_material
+
+@router.get("/{material_id}/history", response_model=List[PriceHistoryResponse])
+async def get_material_history(material_id: int, db: Session = Depends(get_db)):
+    from ..models.database import MaterialPriceHistory
+    history = db.query(MaterialPriceHistory)\
+        .filter(MaterialPriceHistory.material_id == material_id)\
+        .order_by(MaterialPriceHistory.recorded_at.desc())\
+        .all()
+    return history

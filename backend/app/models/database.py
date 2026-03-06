@@ -25,6 +25,18 @@ class Material(Base):
     category = Column(String, default="Gıda") # Gıda, Ambalaj, Genel
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
+    price_history = relationship("MaterialPriceHistory", back_populates="material", cascade="all, delete-orphan")
+
+class MaterialPriceHistory(Base):
+    __tablename__ = "material_price_history"
+
+    id = Column(Integer, primary_key=True, index=True)
+    material_id = Column(Integer, ForeignKey("materials.id"))
+    price = Column(Float, nullable=False)
+    recorded_at = Column(DateTime, default=datetime.utcnow)
+
+    material = relationship("Material", back_populates="price_history")
+
 class Recipe(Base):
     __tablename__ = "recipes"
 

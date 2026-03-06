@@ -1,6 +1,6 @@
-
 import re
-from typing import List, Dict
+import difflib
+from typing import List, Dict, Optional
 
 def extract_invoice_data(ocr_text: str) -> List[Dict[str, any]]:
     """
@@ -33,16 +33,32 @@ def extract_invoice_data(ocr_text: str) -> List[Dict[str, any]]:
                 
     return matches
 
+def find_material_match(raw_name: str, existing_materials: List[Dict]) -> Optional[Dict]:
+    """
+    Uses fuzzy matching to find the best existing material for a scanned item.
+    """
+    if not existing_materials:
+        return None
+        
+    material_names = [m["name"] for m in existing_materials]
+    matches = difflib.get_close_matches(raw_name, material_names, n=1, cutoff=0.6)
+    
+    if matches:
+        best_match_name = matches[0]
+        # Find the original material object
+        for m in existing_materials:
+            if m["name"] == best_match_name:
+                return m
+    return None
+
 def mock_process_image(image_bytes) -> str:
     """
     Simulates OCR processing call (e.g. to Tesseract or Google Vision)
     """
     return """
-    BI SPECIAL MEZE
-    FIS NO: 0001
-    SUZME YOGURT 150,00
-    PATLICAN 80,00
-    KAP 1.50
+    BALIKESIR PEYNIRCISI
+    FIS NO: 0006
+    GIDA 195,58
     """
 
 # Example:

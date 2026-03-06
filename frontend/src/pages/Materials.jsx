@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, Search, Edit2, Trash2, Package, Percent, Tag, X, Filter } from 'lucide-react';
+import { Plus, Search, Edit2, Trash2, Package, Percent, Tag, X, Filter, History, TrendingUp, TrendingDown, Minus } from 'lucide-react';
 
 const API_BASE = '/api';
 
@@ -9,6 +9,9 @@ const Materials = () => {
     const [materials, setMaterials] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isHistoryOpen, setIsHistoryOpen] = useState(false);
+    const [selectedMaterial, setSelectedMaterial] = useState(null);
+    const [historyData, setHistoryData] = useState([]);
     const [loading, setLoading] = useState(true);
     const [newMaterial, setNewMaterial] = useState({
         name: '',
@@ -34,15 +37,30 @@ const Materials = () => {
         }
     };
 
+    const fetchHistory = async (id) => {
+        try {
+            const res = await axios.get(`${API_BASE}/materials/${id}/history`);
+            setHistoryData(res.data);
+            setIsHistoryOpen(true);
+        } catch (err) {
+            console.error("Error fetching history:", err);
+        }
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            await axios.post(`${API_BASE}/materials/`, newMaterial);
+            if (selectedMaterial) {
+                await axios.put(`${API_BASE}/materials/${selectedMaterial.id}`, newMaterial);
+            } else {
+                await axios.post(`${API_BASE}/materials/`, newMaterial);
+            }
             setIsModalOpen(false);
+            setSelectedMaterial(null);
             setNewMaterial({ name: '', unit_type: 'kg', unit_price: 0, waste_percent: 0, category: 'Gıda' });
             fetchMaterials();
         } catch (err) {
-            console.error("Error creating material:", err);
+            console.error("Error saving material:", err);
         }
     };
 
@@ -153,11 +171,24 @@ const Materials = () => {
                                 </td>
                                 <td className="px-10 py-7 text-right">
                                     <div className="flex justify-end gap-3 opacity-0 group-hover:opacity-100 transition-all translate-x-4 group-hover:translate-x-0">
-                                        <button className="p-3 bg-white hover:bg-amber-500 hover:text-white rounded-xl text-slate-400 shadow-sm transition-all duration-300">
-                                            <Edit2 size={20} />
+                                        <button
+                                            onClick={() => fetchHistory(material.id)}
+                                            className="p-3 bg-white hover:bg-slate-900 hover:text-white rounded-xl text-slate-400 shadow-sm transition-all duration-300"
+                                        >
+                                            <History size={20} title="Geçmiş" />
+                                        </button>
+                                        <button
+                                            onClick={() => {
+                                                setSelectedMaterial(material);
+                                                setNewMaterial(material);
+                                                setIsModalOpen(true);
+                                            }}
+                                            className="p-3 bg-white hover:bg-amber-500 hover:text-white rounded-xl text-slate-400 shadow-sm transition-all duration-300"
+                                        >
+                                            <Edit2 size={20} title="Düzenle" />
                                         </button>
                                         <button className="p-3 bg-white hover:bg-rose-500 hover:text-white rounded-xl text-slate-400 shadow-sm transition-all duration-300">
-                                            <Trash2 size={20} />
+                                            <Trash2 size={20} title="Sil" />
                                         </button>
                                     </div>
                                 </td>
@@ -250,6 +281,66 @@ const Materials = () => {
                                         <button type="submit" className="flex-[2] px-8 py-5 bg-amber-600 text-white rounded-2xl font-black hover:bg-amber-700 shadow-xl shadow-amber-200 transition-all uppercase tracking-widest text-xs">Malzemeyi Kaydet</button>
                                     </div>
                                 </form>
+                            </div>
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
+
+            {/* History Modal */}
+            <AnimatePresence>
+                {isHistoryOpen && (
+                    <div className="fixed inset-0 z-[100] flex items-center justify-center p-6">
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            onClick={() => setIsHistoryOpen(false)}
+                            className="absolute inset-0 bg-slate-900/40 backdrop-blur-md"
+                        />
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                            className="bg-white w-full max-w-2xl rounded-[2.5rem] shadow-2xl relative overflow-hidden"
+                        >
+                            <div className="p-10 space-y-8">
+                                <div className="flex justify-between items-center">
+                                    <div>
+                                        <h2 className="text-3xl font-black text-slate-900 tracking-tight">Fiyat Analizi</h2>
+                                        <p className="text-slate-500 font-bold mt-1 text-sm">Zaman içindeki fiyat değişimleri.</p>
+                                    </div>
+                                    <button onClick={() => setIsHistoryOpen(false)} className="p-3 hover:bg-slate-50 rounded-2xl text-slate-400 transition-colors">
+                                        <X size={28} />
+                                    </button>
+                                </div>
+
+                                <div className="space-y-6">
+                                    {historyData.map((item, idx) => (
+                                        <div key={idx} className="flex items-center justify-between p-6 bg-slate-50 rounded-2xl group hover:bg-white hover:shadow-lg transition-all border border-transparent hover:border-slate-100">
+                                            <div className="flex items-center gap-6">
+                                                <div className={`p-4 rounded-xl ${idx === 0 ? 'bg-amber-100 text-amber-600' :
+                                                        item.price > (historyData[idx + 1]?.price || item.price) ? 'bg-rose-100 text-rose-600' :
+                                                            item.price < (historyData[idx + 1]?.price || item.price) ? 'bg-emerald-100 text-emerald-600' :
+                                                                'bg-slate-100 text-slate-400'
+                                                    }`}>
+                                                    {idx === 0 ? <Minus size={20} /> :
+                                                        item.price > (historyData[idx + 1]?.price || item.price) ? <TrendingUp size={20} /> :
+                                                            item.price < (historyData[idx + 1]?.price || item.price) ? <TrendingDown size={20} /> :
+                                                                <Minus size={20} />}
+                                                </div>
+                                                <div>
+                                                    <p className="font-black text-slate-900 text-lg">{item.price} ₺</p>
+                                                    <p className="text-slate-400 text-xs font-bold uppercase tracking-widest">{new Date(item.recorded_at).toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+                                                </div>
+                                            </div>
+                                            {idx === 0 && <span className="bg-amber-600 text-white px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest">Mevcut</span>}
+                                        </div>
+                                    ))}
+                                    {historyData.length === 0 && (
+                                        <div className="text-center py-12 text-slate-400 italic font-bold">Herhangi bir fiyat geçmişi bulunamadı.</div>
+                                    )}
+                                </div>
                             </div>
                         </motion.div>
                     </div>

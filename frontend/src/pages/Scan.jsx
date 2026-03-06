@@ -51,11 +51,11 @@ const Scan = () => {
 
             // Format items for the backend
             const itemsToSave = extractedItems.map(item => ({
-                name: item.raw_name,
+                name: item.suggested_name || item.raw_name,
                 unit_price: item.unit_price,
-                unit_type: "kg", // Default for OCR items
-                waste_percent: 0.0,
-                category: "Gıda"
+                unit_type: item.unit_type || "kg",
+                waste_percent: item.waste_percent || 0.0,
+                category: item.category || "Gıda"
             }));
 
             await axios.post(`${API_BASE}/ocr/save`, { items: itemsToSave });
@@ -173,12 +173,22 @@ const Scan = () => {
                                         {extractedItems.map((item, idx) => (
                                             <tr key={idx} className="group hover:bg-slate-50/50 transition-colors">
                                                 <td className="px-8 py-5">
-                                                    <input
-                                                        type="text"
-                                                        value={item.raw_name}
-                                                        onChange={(e) => updateExtractedItem(idx, 'raw_name', e.target.value)}
-                                                        className="bg-transparent border-none outline-none font-bold text-slate-800 w-full focus:text-amber-600 transition-colors"
-                                                    />
+                                                    <div className="flex flex-col">
+                                                        <input
+                                                            type="text"
+                                                            value={item.raw_name}
+                                                            onChange={(e) => updateExtractedItem(idx, 'raw_name', e.target.value)}
+                                                            className="bg-transparent border-none outline-none font-bold text-slate-800 w-full focus:text-amber-600 transition-colors"
+                                                        />
+                                                        {item.suggested_name && (
+                                                            <div className="flex items-center gap-1.5 mt-1">
+                                                                <CheckCircle2 size={12} className="text-emerald-500" />
+                                                                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                                                                    Eşleşme: <span className="text-emerald-600">{item.suggested_name}</span>
+                                                                </span>
+                                                            </div>
+                                                        )}
+                                                    </div>
                                                 </td>
                                                 <td className="px-8 py-5">
                                                     <div className="flex items-center gap-2">
